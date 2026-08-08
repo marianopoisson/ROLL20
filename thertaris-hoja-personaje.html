@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Thertaris — Hoja de Personaje</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --parchment:#EFE3C8;
+    --parchment-2:#E6D6AC;
+    --parchment-dark:#D9C592;
+    --ink:#2B2418;
+    --ink-soft:#5A4E3A;
+    --burgundy:#7A2331;
+    --burgundy-dark:#57141F;
+    --gold:#A9782E;
+    --gold-light:#D9B872;
+    --sage:#4F5E44;
+    --paper-shadow: rgba(43,36,24,0.25);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:transparent;color:var(--ink);font-family:'EB Garamond',serif;}
+  body{padding:24px 16px 60px;}
+  .sheet-wrap{max-width:980px;margin:0 auto;}
+
+  /* texture */
+  .parchment{
+    background:
+      radial-gradient(ellipse at top left, rgba(255,255,255,0.10), transparent 55%),
+      radial-gradient(ellipse at bottom right, rgba(0,0,0,0.08), transparent 55%),
+      linear-gradient(var(--parchment), var(--parchment));
+    border:1px solid var(--gold);
+    box-shadow: 0 10px 30px var(--paper-shadow), inset 0 0 0 6px rgba(169,120,46,0.15);
+    border-radius:4px;
+    position:relative;
+  }
+  .parchment::before{
+    content:"";
+    position:absolute; inset:8px;
+    border:1px solid rgba(169,120,46,0.55);
+    border-radius:2px;
+    pointer-events:none;
+  }
+
+  header.title-block{
+    text-align:center; padding:26px 20px 18px;
+    position:relative;
+  }
+  header.title-block .wing{
+    position:absolute; top:22px; width:70px; height:34px; opacity:0.75;
+  }
+  header.title-block .wing.left{left:26px; transform:scaleX(1);}
+  header.title-block .wing.right{right:26px; transform:scaleX(-1);}
+  h1.game-title{
+    font-family:'Cinzel Decorative', serif; font-weight:900;
+    font-size:clamp(30px,5vw,48px); color:var(--burgundy-dark);
+    margin:6px 0 0; letter-spacing:1px;
+    text-shadow: 1px 1px 0 rgba(255,255,255,0.35);
+  }
+  .edition-tag{
+    font-family:'Cinzel',serif; letter-spacing:4px; text-transform:uppercase;
+    font-size:12px; color:var(--gold); margin-top:4px;
+  }
+  .seal{
+    width:54px;height:54px;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, var(--burgundy) 0%, var(--burgundy-dark) 70%);
+    border:2px solid var(--gold-light);
+    display:flex;align-items:center;justify-content:center;
+    color:var(--parchment); font-family:'Cinzel',serif; font-size:10px; text-align:center;
+    margin:10px auto 0; box-shadow:0 3px 6px rgba(0,0,0,0.35);
+  }
+
+  /* tabs */
+  .tabs{display:flex; gap:8px; justify-content:center; margin:18px 0 14px; flex-wrap:wrap;}
+  .tab-btn{
+    font-family:'Cinzel',serif; font-size:13px; letter-spacing:1px; text-transform:uppercase;
+    background:var(--parchment-2); color:var(--burgundy-dark); border:1px solid var(--gold);
+    padding:9px 18px; border-radius:3px 3px 0 0; cursor:pointer; transition:all .15s ease;
+  }
+  .tab-btn.active{background:var(--burgundy); color:var(--parchment); border-color:var(--burgundy-dark);}
+  .tab-btn:hover:not(.active){background:var(--parchment-dark);}
+
+  .page{display:none; padding:6px 22px 30px;}
+  .page.active{display:block;}
+
+  section.block{margin:22px 0;}
+  h2.section-title{
+    font-family:'Cinzel',serif; font-size:17px; letter-spacing:2px; text-transform:uppercase;
+    color:var(--burgundy-dark); border-bottom:2px solid var(--gold); padding-bottom:5px; margin-bottom:12px;
+    display:flex; align-items:center; gap:8px;
+  }
+  h2.section-title::before{content:"◈"; color:var(--gold);}
+  h3.sub-title{
+    font-family:'Cinzel',serif; font-size:12px; letter-spacing:2px; text-transform:uppercase;
+    color:var(--sage); background:rgba(79,94,68,0.10); padding:4px 10px; margin:14px 0 8px; border-left:3px solid var(--sage);
+  }
+
+  label.field{display:flex; flex-direction:column; gap:3px; font-size:13px; color:var(--ink-soft);}
+  label.field .lbl{font-family:'Cinzel',serif; font-size:10.5px; letter-spacing:1px; text-transform:uppercase; color:var(--gold);}
+  input[type=text], input[type=number], textarea{
+    font-family:'EB Garamond',serif; font-size:15px; color:var(--ink);
+    background:rgba(255,255,255,0.55); border:1px solid var(--gold);
+    border-radius:2px; padding:5px 7px; width:100%;
+  }
+  input:focus, textarea:focus{outline:2px solid var(--burgundy); outline-offset:1px; background:#fffdf5;}
+  input[type=number]{width:70px;}
+
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:10px 20px;}
+  .grid3{display:grid; grid-template-columns:repeat(3,1fr); gap:10px 16px;}
+  .grid4{display:grid; grid-template-columns:repeat(4,1fr); gap:10px 14px;}
+  @media(max-width:640px){.grid2,.grid3,.grid4{grid-template-columns:1fr 1fr;}}
+
+  table.sheet-table{width:100%; border-collapse:collapse; font-size:13.5px;}
+  table.sheet-table th{
+    font-family:'Cinzel',serif; font-size:10.5px; text-transform:uppercase; letter-spacing:0.5px;
+    color:var(--parchment); background:var(--burgundy); padding:6px 6px; text-align:left;
+  }
+  table.sheet-table td{border-bottom:1px solid rgba(169,120,46,0.4); padding:5px 6px; vertical-align:middle;}
+  table.sheet-table tr.group-row td{
+    background:var(--gold-light); font-family:'Cinzel',serif; font-size:10px; text-transform:uppercase;
+    letter-spacing:1.5px; color:var(--burgundy-dark); padding:4px 8px;
+  }
+  table.sheet-table td.name-cell{min-width:130px;}
+  table.sheet-table td.carac-cell{width:44px; font-family:'Cinzel',serif; font-size:11px; color:var(--sage); text-align:center;}
+
+  /* pip tracks */
+  .pips{display:inline-flex; gap:3px; cursor:pointer; vertical-align:middle;}
+  .pip{
+    width:13px; height:13px; border-radius:50%; border:1.4px solid var(--burgundy);
+    background:transparent; display:inline-block; transition:background .1s;
+  }
+  .pip.filled{background:var(--burgundy);}
+  .pips.tri .pip{border-radius:2px; transform:rotate(45deg); width:11px; height:11px;}
+  .pip-label{font-size:10px; color:var(--ink-soft); margin-left:4px;}
+
+  .hex{
+    width:64px; height:56px; margin:0 auto;
+    clip-path:polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%);
+    background:rgba(255,255,255,0.55); border:2px solid var(--gold); display:flex; align-items:center; justify-content:center;
+  }
+  .hex input{border:none; background:transparent; text-align:center; width:90%; font-size:16px;}
+  .hex-block{text-align:center;}
+  .hex-block .lbl{display:block; margin-top:6px;}
+
+  .starburst{
+    width:82px; height:82px; margin:0 auto; position:relative;
+    background: radial-gradient(circle, var(--gold-light) 0%, var(--gold) 70%, var(--burgundy-dark) 100%);
+    clip-path: polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .starburst input{width:44px; text-align:center; background:rgba(255,255,255,0.75); border:1px solid var(--burgundy-dark); font-weight:600;}
+  .currency-row{display:flex; gap:30px; justify-content:center; margin-top:10px; flex-wrap:wrap;}
+  .currency-item{text-align:center;}
+  .currency-item .lbl{font-family:'Cinzel',serif; font-size:11px; letter-spacing:1px; text-transform:uppercase; color:var(--burgundy-dark); margin-top:6px; display:block;}
+
+  .defense-wheel{
+    width:200px; height:200px; margin:6px auto; border-radius:50%; border:3px solid var(--burgundy);
+    position:relative; background:rgba(255,255,255,0.35);
+  }
+  .defense-wheel .center{
+    position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    width:66px; height:66px; border-radius:50%; background:var(--burgundy); color:var(--parchment);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; font-family:'Cinzel',serif; font-size:10px;
+  }
+  .defense-wheel .center input{width:46px; text-align:center; background:rgba(255,255,255,0.85); border:none; font-weight:700; padding:2px;}
+  .defense-wheel .quad{position:absolute; text-align:center; width:80px;}
+  .defense-wheel .quad .lbl{font-family:'Cinzel',serif; font-size:9px; text-transform:uppercase; color:var(--burgundy-dark); display:block;}
+  .defense-wheel .quad input{width:44px; text-align:center;}
+  .defense-wheel .q-top{top:2px; left:50%; transform:translateX(-50%);}
+  .defense-wheel .q-bottom{bottom:2px; left:50%; transform:translateX(-50%);}
+  .defense-wheel .q-left{left:-6px; top:50%; transform:translateY(-50%); text-align:right;}
+  .defense-wheel .q-right{right:-6px; top:50%; transform:translateY(-50%); text-align:left;}
+
+  .add-row-btn, .toolbar button, .icon-btn{
+    font-family:'Cinzel',serif; font-size:11.5px; letter-spacing:1px; text-transform:uppercase;
+    background:var(--sage); color:var(--parchment); border:none; padding:6px 12px; border-radius:3px; cursor:pointer;
+  }
+  .add-row-btn:hover, .toolbar button:hover{filter:brightness(1.1);}
+  .remove-row{background:var(--burgundy); border:none; color:var(--parchment); width:22px; height:22px; border-radius:50%; cursor:pointer; font-size:12px; line-height:1;}
+
+  .toolbar{
+    position:sticky; top:0; z-index:20; display:flex; gap:10px; justify-content:center; flex-wrap:wrap;
+    background:var(--parchment-dark); padding:10px; border:1px solid var(--gold); border-radius:4px; margin-bottom:14px;
+  }
+  .toolbar button{background:var(--burgundy);}
+  .save-status{font-size:11.5px; color:var(--ink-soft); align-self:center; font-family:'Cinzel',serif; letter-spacing:0.5px;}
+
+  textarea{min-height:70px; resize:vertical;}
+  .habilidades-especiales-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+
+  footer.credits{text-align:center; font-size:11px; color:var(--ink-soft); margin-top:18px; opacity:0.7;}
+
+  @media print{
+    body{background:white; padding:0;}
+    .toolbar, .tabs{display:none !important;}
+    .page{display:block !important; page-break-after:always;}
+    .parchment{box-shadow:none;}
+  }
+</style>
+</head>
+<body>
+
+<div class="sheet-wrap">
+
+  <div class="toolbar">
+    <button id="btnExport">Exportar JSON</button>
+    <button id="btnImportTrigger">Importar JSON</button>
+    <input type="file" id="fileImport" accept="application/json" style="display:none">
+    <button id="btnPrint">Imprimir / PDF</button>
+    <button id="btnReset">Reiniciar hoja</button>
+    <span class="save-status" id="saveStatus">Cargando…</span>
+  </div>
+
+  <div class="parchment">
+    <header class="title-block">
+      <svg class="wing left" viewBox="0 0 100 50" xmlns="http://www.w3.org/2000/svg"><path d="M0,45 Q20,10 45,20 Q30,25 40,15 Q55,5 100,0 Q60,15 55,30 Q40,20 20,30 Q10,40 0,45Z" fill="#57141F"/></svg>
+      <svg class="wing right" viewBox="0 0 100 50" xmlns="http://www.w3.org/2000/svg"><path d="M0,45 Q20,10 45,20 Q30,25 40,15 Q55,5 100,0 Q60,15 55,30 Q40,20 20,30 Q10,40 0,45Z" fill="#57141F"/></svg>
+      <h1 class="game-title">Thertaris</h1>
+      <div class="edition-tag">Primera edición — Hoja de personaje</div>
+      <div class="seal">HOJA<br>DE ROL</div>
+    </header>
+
+    <div class="tabs">
+      <button class="tab-btn active" data-page="p1">Personaje</button>
+      <button class="tab-btn" data-page="p2">Habilidades &amp; Hechicería</button>
+    </div>
+
+    <!-- ============ PAGE 1 ============ -->
+    <div class="page active" id="p1">
+
+      <section class="block">
+        <h2 class="section-title">Datos del personaje</h2>
+        <div class="grid4" id="datosGrid"></div>
+      </section>
+
+      <section class="block">
+        <h2 class="section-title">Características</h2>
+        <table class="sheet-table" id="caracTable">
+          <thead><tr><th>Atributo</th><th>N'</th><th>Raza</th><th>Total</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </section>
+
+      <div class="grid2">
+        <section class="block">
+          <h2 class="section-title">Salud</h2>
+          <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+            <span class="pip-label">CON total (O)</span>
+            <div class="pips" id="conPips" data-max="10"></div>
+            <label class="field" style="width:90px;"><span class="lbl">PV</span><input type="number" data-bind="salud.pv"></label>
+          </div>
+          <div style="margin-top:10px; display:flex; align-items:center; gap:8px;">
+            <span class="pip-label">Puntos perdidos</span>
+            <input type="number" data-bind="salud.puntosPerdidos" style="width:60px;">
+          </div>
+          <h3 class="sub-title">Heridas o enfermedades</h3>
+          <table class="sheet-table" id="heridasTable">
+            <thead><tr><th>Tipo</th><th>Tiempo de curación</th><th></th></tr></thead>
+            <tbody></tbody>
+          </table>
+          <button class="add-row-btn" id="addHerida" style="margin-top:6px;">+ Añadir herida</button>
+          <div style="margin-top:10px;">
+            <label class="field"><span class="lbl">Umbral de vida</span><input type="text" data-bind="salud.umbral"></label>
+          </div>
+        </section>
+
+        <section class="block">
+          <h2 class="section-title">Resistencias</h2>
+          <div class="grid2" id="resistGrid"></div>
+          <h3 class="sub-title">Fe</h3>
+          <label class="field"><span class="lbl">Promesas</span><textarea data-bind="fe.promesas"></textarea></label>
+        </section>
+      </div>
+
+      <section class="block">
+        <div class="grid4" id="hexGrid"></div>
+      </section>
+
+      <div class="grid2">
+        <section class="block">
+          <h2 class="section-title">Idiomas</h2>
+          <table class="sheet-table" id="idiomasTable">
+            <thead><tr><th>Idioma</th><th>Nivel</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </section>
+
+        <section class="block">
+          <h2 class="section-title">Armadura</h2>
+          <table class="sheet-table"><thead><tr><th>Clase</th><th>Calidad</th><th>Escudo</th><th>Yelmo</th><th>Total</th></tr></thead>
+            <tbody><tr>
+              <td><input type="text" data-bind="armadura.clase"></td>
+              <td><input type="text" data-bind="armadura.calidad"></td>
+              <td><input type="text" data-bind="armadura.escudo"></td>
+              <td><input type="text" data-bind="armadura.yelmo"></td>
+              <td><input type="text" data-bind="armadura.total"></td>
+            </tr></tbody>
+          </table>
+
+          <h2 class="section-title" style="margin-top:18px;">Defensa</h2>
+          <div class="defense-wheel">
+            <div class="quad q-top"><span class="lbl">Agilidad</span><input type="number" data-bind="defensa.agilidad"></div>
+            <div class="quad q-left"><span class="lbl">Armadura</span><input type="number" data-bind="defensa.armadura"></div>
+            <div class="quad q-right"><span class="lbl">Especial</span><input type="number" data-bind="defensa.especial"></div>
+            <div class="quad q-bottom"><span class="lbl">Exp. C.</span><input type="number" data-bind="defensa.expc"></div>
+            <div class="center"><span>BD</span><input type="number" data-bind="defensa.bd"></div>
+          </div>
+        </section>
+      </div>
+
+      <section class="block">
+        <h2 class="section-title">Armas</h2>
+        <div class="grid2" id="armasGrid"></div>
+      </section>
+
+      <section class="block">
+        <h2 class="section-title">Iniciativa</h2>
+        <div style="display:flex; gap:16px; align-items:flex-end; flex-wrap:wrap;">
+          <label class="field" style="width:90px;"><span class="lbl">AGI</span><input type="number" data-bind="iniciativa.agi" class="ini-input"></label>
+          <span style="padding-bottom:8px;">+</span>
+          <label class="field" style="width:120px;"><span class="lbl">Exp. en combate</span><input type="number" data-bind="iniciativa.expcombate" class="ini-input"></label>
+          <span style="padding-bottom:8px;">−</span>
+          <label class="field" style="width:100px;"><span class="lbl">Armadura</span><input type="number" data-bind="iniciativa.armaduraPenal" class="ini-input"></label>
+          <span style="padding-bottom:8px;">=</span>
+          <label class="field" style="width:90px;"><span class="lbl">Total</span><input type="number" id="iniciativaTotal" readonly style="background:var(--gold-light); font-weight:700;"></label>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- ============ PAGE 2 ============ -->
+    <div class="page" id="p2">
+
+      <section class="block">
+        <h2 class="section-title">Habilidades</h2>
+        <label class="field" style="max-width:320px; margin-bottom:10px;"><span class="lbl">Profesión</span><input type="text" data-bind="profesion"></label>
+        <table class="sheet-table" id="habilidadesTable">
+          <thead><tr><th>Habilidad</th><th>N°</th><th>Carac.</th><th>Objeto</th><th>Especial</th><th>Total</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </section>
+
+      <div class="grid2">
+        <section class="block">
+          <h2 class="section-title">Habilidades especiales</h2>
+          <div class="habilidades-especiales-grid" id="especialesGrid"></div>
+        </section>
+        <section class="block">
+          <h2 class="section-title">Notas y equipo</h2>
+          <textarea data-bind="notas" style="min-height:150px;"></textarea>
+        </section>
+      </div>
+
+      <section class="block">
+        <h2 class="section-title">Tesoro</h2>
+        <div class="currency-row">
+          <div class="currency-item"><div class="starburst"><input type="number" data-bind="tesoro.tmolos"></div><span class="lbl">Tmolos</span></div>
+          <div class="currency-item"><div class="starburst"><input type="number" data-bind="tesoro.lidium"></div><span class="lbl">Lidium</span></div>
+          <div class="currency-item"><div class="starburst"><input type="number" data-bind="tesoro.gemas"></div><span class="lbl">Gemas</span></div>
+        </div>
+      </section>
+
+      <section class="block">
+        <h2 class="section-title">Hechicería</h2>
+        <div class="grid2">
+          <div>
+            <label class="field"><span class="lbl">Puntos de poder × nivel</span><input type="text" data-bind="hechiceria.puntosPorNivel"></label>
+            <h3 class="sub-title">Objetos</h3>
+            <div id="objetosMagicos"></div>
+          </div>
+          <div style="display:flex; gap:20px; align-items:center; justify-content:center;">
+            <div class="hex-block"><div class="hex"><input type="number" data-bind="hechiceria.gastados"></div><span class="lbl">Gastados</span></div>
+            <div class="hex-block"><div class="hex"><input type="number" data-bind="hechiceria.actuales"></div><span class="lbl">Actuales</span></div>
+          </div>
+        </div>
+
+        <table class="sheet-table" style="margin-top:14px;" id="hechiceriaTable">
+          <thead><tr><th>Habilidad</th><th>Conocimiento</th><th>Carac.</th><th>Experto</th><th>Total</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </section>
+
+    </div>
+
+  </div>
+
+  <footer class="credits">Hoja interactiva no oficial basada en la ficha de personaje de Thertaris (Primera edición). Los datos se guardan automáticamente en este navegador.</footer>
+</div>
+
+<script>
+(function(){
+
+/* ---------- Data model ---------- */
+const DEFAULTS = {
+  datos:{nombre:'',peso:'',raza:'',estatura:'',lugar:'',pelo:'',edad:'',ojos:'',jugador:'',nivel:''},
+  carac:{fuerza:{n:'',raza:'',total:''},agilidad:{n:'',raza:'',total:''},constitucion:{n:'',raza:'',total:''},inteligencia:{n:'',raza:'',total:''},percepcion:{n:'',raza:'',total:''},carisma:{n:'',raza:'',total:''}},
+  salud:{con:0,pv:'',puntosPerdidos:'',umbral:''},
+  heridas:[{tipo:'',tiempo:''},{tipo:'',tiempo:''},{tipo:'',tiempo:''}],
+  resist:{frio:'',calor:'',enfermedad:'',venenos:'',magia:''},
+  fe:{promesas:''},
+  hex:{moral:'',apariencia:'',concentracion:'',expcombate:''},
+  idiomas:Array.from({length:8},()=>({nombre:'',nivel:''})),
+  armadura:{clase:'',calidad:'',escudo:'',yelmo:'',total:''},
+  defensa:{agilidad:'',armadura:'',especial:'',expc:'',bd:''},
+  armas:[{tipo:'',danio:'',material:'',fue:'',expc:'',critico:''},{tipo:'',danio:'',material:'',fue:'',expc:'',critico:''}],
+  iniciativa:{agi:'',expcombate:'',armaduraPenal:''},
+  profesion:'',
+  habilidades:{},
+  especiales:['','','','','',''],
+  notas:'',
+  tesoro:{tmolos:'',lidium:'',gemas:''},
+  hechiceria:{puntosPorNivel:'',gastados:'',actuales:''},
+  objetosMagicos:['','',''],
+  hechiceriaHab:{}
+};
+
+const HAB_GROUPS = [
+  {label:'Movimiento', items:[
+    {key:'ropa',name:'Ropa',carac:'AGI'},
+    {key:'armLiviana',name:'Armadura liviana',carac:'AGI'},
+    {key:'armMedia',name:'Armadura media',carac:'FUE'},
+    {key:'armPesada',name:'Armadura pesada',carac:'FUE'},
+  ]},
+  {label:'Combate', items:[
+    {key:'desarmado',name:'Desarmado (d FUE/5)',carac:'AGI'},
+    {key:'espadas',name:'Espadas',carac:'FUE'},
+    {key:'hacha',name:'Hacha',carac:'FUE'},
+    {key:'arcos',name:'Arcos',carac:'AGI'},
+    {key:'ballesta',name:'Ballesta',carac:'AGI'},
+    {key:'lanzas',name:'Lanzas',carac:'AGI'},
+    {key:'alabarda',name:'Alabarda',carac:'FUE'},
+    {key:'mazos',name:'Mazos y martillos',carac:'FUE'},
+    {key:'dardos',name:'Dardos',carac:'AGI'},
+    {key:'daga',name:'Daga',carac:'AGI'},
+    {key:'otraCombate',name:'Otra',carac:'',editableName:true},
+  ]},
+  {label:'Corporales', items:[
+    {key:'escalar',name:'Escalar',carac:'AGI'},
+    {key:'nadar',name:'Nadar',carac:'CON'},
+    {key:'montar',name:'Montar',carac:'AGI'},
+    {key:'acrobacias',name:'Acrobacias',carac:'AGI'},
+  ]},
+  {label:'Subterfugio', items:[
+    {key:'descubrir',name:'Descubrir',carac:'PER'},
+    {key:'emboscar',name:'Emboscar',carac:'PER'},
+    {key:'esconderse',name:'Esconderse',carac:'PER'},
+    {key:'abrirCerraduras',name:'Abrir cerraduras',carac:'INT'},
+    {key:'detectarTrampas',name:'Detectar trampas',carac:'PER'},
+    {key:'colocarTrampas',name:'Colocar trampas',carac:'INT'},
+    {key:'desactivarTrampas',name:'Desactivar trampas',carac:'INT'},
+    {key:'robar',name:'Robar',carac:'AGI'},
+    {key:'corvderleria',name:'Cordelería',carac:'AGI'},
+  ]},
+  {label:'Otras', items:[
+    {key:'otra1',name:'',carac:'',editableName:true},
+    {key:'otra2',name:'',carac:'',editableName:true},
+    {key:'otra3',name:'',carac:'',editableName:true},
+  ]},
+];
+
+const HECHICERIA_SKILLS = [
+  {key:'leerRunas',name:'Leer runas',carac:'Int'},
+  {key:'quimica',name:'Química',carac:'Int'},
+  {key:'botanica',name:'Botánica',carac:'Int'},
+  {key:'objetos',name:'Objetos',carac:'Int'},
+  {key:'criaturas',name:'Criaturas',carac:'Int'},
+  {key:'pergaminos',name:'Pergaminos',carac:'Int'},
+  {key:'verEspiritu',name:'Ver espíritu',carac:'Per'},
+  {key:'verMagia',name:'Ver magia',carac:'Per'},
+];
+
+let sheet = JSON.parse(JSON.stringify(DEFAULTS));
+
+/* ---------- path helpers ---------- */
+function getPath(obj, path){
+  return path.split('.').reduce((o,k)=> (o==null?undefined:o[k]), obj);
+}
+function setPath(obj, path, val){
+  const keys = path.split('.');
+  let o = obj;
+  for(let i=0;i<keys.length-1;i++){
+    if(o[keys[i]] === undefined) o[keys[i]] = {};
+    o = o[keys[i]];
+  }
+  o[keys[keys.length-1]] = val;
+}
+
+/* ---------- builders ---------- */
+function fieldHTML(path, label, type){
+  type = type || 'text';
+  return `<label class="field"><span class="lbl">${label}</span><input type="${type}" data-bind="${path}"></label>`;
+}
+
+function pipsHTML(path, max, style){
+  let spans='';
+  for(let i=1;i<=max;i++) spans += `<span class="pip" data-i="${i}"></span>`;
+  return `<div class="pips ${style||''}" data-bind="${path}" data-max="${max}">${spans}</div>`;
+}
+
+/* Datos del personaje */
+document.getElementById('datosGrid').innerHTML = [
+  fieldHTML('datos.nombre','Nombre'),
+  fieldHTML('datos.peso','Peso'),
+  fieldHTML('datos.raza','Raza'),
+  fieldHTML('datos.estatura','Estatura'),
+  fieldHTML('datos.lugar','Lugar de origen'),
+  fieldHTML('datos.pelo','Pelo'),
+  fieldHTML('datos.edad','Edad'),
+  fieldHTML('datos.ojos','Ojos'),
+  fieldHTML('datos.jugador','Jugador'),
+  fieldHTML('datos.nivel','Nivel','number'),
+].join('');
+
+/* Características */
+(function(){
+  const rows = [['fuerza','Fuerza'],['agilidad','Agilidad'],['constitucion','Constitución'],['inteligencia','Inteligencia'],['percepcion','Percepción'],['carisma','Carisma']];
+  const tbody = document.querySelector('#caracTable tbody');
+  tbody.innerHTML = rows.map(([k,label])=>`
+    <tr>
+      <td>${label}</td>
+      <td><input type="number" data-bind="carac.${k}.n"></td>
+      <td><input type="number" data-bind="carac.${k}.raza"></td>
+      <td><input type="number" data-bind="carac.${k}.total"></td>
+    </tr>`).join('');
+})();
+
+/* Salud CON pips */
+document.getElementById('conPips').outerHTML = pipsHTML('salud.con', 10);
+
+/* Resistencias */
+document.getElementById('resistGrid').innerHTML = [
+  fieldHTML('resist.frio','Frío','number'),
+  fieldHTML('resist.calor','Calor','number'),
+  fieldHTML('resist.enfermedad','Enfermedad','number'),
+  fieldHTML('resist.venenos','Venenos','number'),
+  fieldHTML('resist.magia','Magia','number'),
+].join('');
+
+/* Hex block: Moral, Apariencia, Concentración, Experiencia en combate */
+(function(){
+  const items = [['hex.moral','Moral'],['hex.apariencia','Apariencia'],['hex.concentracion','Concentración'],['hex.expcombate','Exp. en combate']];
+  document.getElementById('hexGrid').innerHTML = items.map(([path,label])=>`
+    <div class="hex-block">
+      <div class="hex"><input type="text" data-bind="${path}"></div>
+      <span class="lbl">${label}</span>
+    </div>`).join('');
+})();
+
+/* Idiomas */
+(function(){
+  const tbody = document.querySelector('#idiomasTable tbody');
+  tbody.innerHTML = sheet.idiomas.map((_,i)=>`
+    <tr><td><input type="text" data-bind="idiomas.${i}.nombre"></td><td><input type="text" data-bind="idiomas.${i}.nivel"></td></tr>`).join('');
+})();
+
+/* Armas */
+(function(){
+  const wrap = document.getElementById('armasGrid');
+  wrap.innerHTML = [0,1].map(i=>`
+    <div>
+      <label class="field"><span class="lbl">Tipo</span><input type="text" data-bind="armas.${i}.tipo"></label>
+      <div class="grid2" style="margin-top:6px;">
+        <label class="field"><span class="lbl">Daño</span><input type="text" data-bind="armas.${i}.danio"></label>
+        <label class="field"><span class="lbl">Material</span><input type="text" data-bind="armas.${i}.material"></label>
+        <label class="field"><span class="lbl">FUE</span><input type="text" data-bind="armas.${i}.fue"></label>
+        <label class="field"><span class="lbl">Exp. C.</span><input type="text" data-bind="armas.${i}.expc"></label>
+        <label class="field"><span class="lbl">Daño crítico</span><input type="text" data-bind="armas.${i}.critico"></label>
+      </div>
+    </div>`).join('');
+})();
+
+/* Heridas (dynamic rows) */
+function renderHeridas(){
+  const tbody = document.querySelector('#heridasTable tbody');
+  tbody.innerHTML = sheet.heridas.map((_,i)=>`
+    <tr>
+      <td><input type="text" data-bind="heridas.${i}.tipo"></td>
+      <td><input type="text" data-bind="heridas.${i}.tiempo"></td>
+      <td><button class="remove-row" data-remove-herida="${i}" title="Quitar">×</button></td>
+    </tr>`).join('');
+  bindInputs(tbody);
+}
+document.getElementById('addHerida').addEventListener('click', ()=>{
+  sheet.heridas.push({tipo:'',tiempo:''});
+  renderHeridas(); scheduleSave();
+});
+
+/* Habilidades table */
+function renderHabilidades(){
+  const tbody = document.querySelector('#habilidadesTable tbody');
+  let html = '';
+  HAB_GROUPS.forEach(group=>{
+    html += `<tr class="group-row"><td colspan="6">${group.label}</td></tr>`;
+    group.items.forEach(item=>{
+      if(!sheet.habilidades[item.key]) sheet.habilidades[item.key] = {n:0, objeto:'', especial:'', total:'', nombre: item.editableName ? '' : item.name};
+      const nameCell = item.editableName
+        ? `<input type="text" placeholder="Nombre" data-bind="habilidades.${item.key}.nombre" style="width:100%;">`
+        : item.name;
+      html += `<tr>
+        <td class="name-cell">${nameCell}</td>
+        <td>${pipsHTML('habilidades.'+item.key+'.n', 5)}</td>
+        <td class="carac-cell">${item.carac||''}</td>
+        <td><input type="text" data-bind="habilidades.${item.key}.objeto"></td>
+        <td><input type="text" data-bind="habilidades.${item.key}.especial"></td>
+        <td><input type="text" data-bind="habilidades.${item.key}.total"></td>
+      </tr>`;
+    });
+  });
+  tbody.innerHTML = html;
+}
+
+/* Especiales boxes */
+function renderEspeciales(){
+  document.getElementById('especialesGrid').innerHTML = sheet.especiales.map((_,i)=>
+    `<textarea data-bind="especiales.${i}" style="min-height:50px;"></textarea>`).join('');
+}
+
+/* Objetos mágicos list */
+function renderObjetosMagicos(){
+  document.getElementById('objetosMagicos').innerHTML = sheet.objetosMagicos.map((_,i)=>
+    `<label class="field" style="margin-bottom:6px;"><input type="text" data-bind="objetosMagicos.${i}"></label>`).join('');
+}
+
+/* Hechicería table */
+function renderHechiceria(){
+  const tbody = document.querySelector('#hechiceriaTable tbody');
+  tbody.innerHTML = HECHICERIA_SKILLS.map(item=>{
+    if(!sheet.hechiceriaHab[item.key]) sheet.hechiceriaHab[item.key] = {conocimiento:0, experto:0, total:''};
+    return `<tr>
+      <td class="name-cell">${item.name}</td>
+      <td>${pipsHTML('hechiceriaHab.'+item.key+'.conocimiento', 5)}</td>
+      <td class="carac-cell">${item.carac}</td>
+      <td>${pipsHTML('hechiceriaHab.'+item.key+'.experto', 3, 'tri')}</td>
+      <td><input type="text" data-bind="hechiceriaHab.${item.key}.total"></td>
+    </tr>`;
+  }).join('');
+}
+
+/* ---------- render all + bind ---------- */
+function renderAllDynamic(){
+  renderHeridas();
+  renderHabilidades();
+  renderEspeciales();
+  renderObjetosMagicos();
+  renderHechiceria();
+}
+
+function applyValuesToDOM(){
+  document.querySelectorAll('[data-bind]').forEach(el=>{
+    const path = el.dataset.bind;
+    const val = getPath(sheet, path);
+    if(el.classList && el.classList.contains('pips')){
+      paintPips(el, Number(val)||0);
+    } else if(el.tagName==='TEXTAREA' || el.tagName==='INPUT'){
+      el.value = (val===undefined || val===null) ? '' : val;
+    }
+  });
+  updateIniciativa();
+}
+
+function paintPips(container, value){
+  container.querySelectorAll('.pip').forEach(p=>{
+    const i = Number(p.dataset.i);
+    p.classList.toggle('filled', i<=value);
+  });
+}
+
+function updateIniciativa(){
+  const agi = Number(getPath(sheet,'iniciativa.agi'))||0;
+  const exp = Number(getPath(sheet,'iniciativa.expcombate'))||0;
+  const pen = Number(getPath(sheet,'iniciativa.armaduraPenal'))||0;
+  document.getElementById('iniciativaTotal').value = agi + exp - pen;
+}
+
+/* ---------- events (delegated) ---------- */
+document.body.addEventListener('input', (e)=>{
+  const el = e.target;
+  if(!el.dataset || !el.dataset.bind) return;
+  setPath(sheet, el.dataset.bind, el.value);
+  if(el.classList.contains('ini-input')) updateIniciativa();
+  scheduleSave();
+});
+
+document.body.addEventListener('click', (e)=>{
+  const pip = e.target.closest('.pip');
+  if(pip){
+    const container = pip.closest('.pips');
+    const path = container.dataset.bind;
+    const i = Number(pip.dataset.i);
+    const current = Number(getPath(sheet, path)) || 0;
+    const newVal = (current === i) ? i-1 : i;
+    setPath(sheet, path, newVal);
+    paintPips(container, newVal);
+    scheduleSave();
+    return;
+  }
+  const rem = e.target.closest('[data-remove-herida]');
+  if(rem){
+    const idx = Number(rem.dataset.removeHerida);
+    sheet.heridas.splice(idx,1);
+    renderHeridas();
+    applyValuesToDOM();
+    scheduleSave();
+  }
+});
+
+/* re-bind helper used after re-rendering a subtree (values already in `sheet`, just paint) */
+function bindInputs(container){
+  container.querySelectorAll('[data-bind]').forEach(el=>{
+    const val = getPath(sheet, el.dataset.bind);
+    if(el.tagName==='TEXTAREA' || el.tagName==='INPUT') el.value = (val===undefined||val===null)?'':val;
+  });
+}
+
+/* ---------- tabs ---------- */
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.page).classList.add('active');
+  });
+});
+
+/* ---------- storage ---------- */
+const STORAGE_KEY = 'thertaris-sheet-v1';
+let saveTimer = null;
+const statusEl = document.getElementById('saveStatus');
+
+function scheduleSave(){
+  statusEl.textContent = 'Guardando…';
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(doSave, 500);
+}
+
+async function doSave(){
+  try{
+    await window.storage.set(STORAGE_KEY, JSON.stringify(sheet), false);
+    statusEl.textContent = 'Guardado ✓';
+  }catch(err){
+    console.error('Error guardando', err);
+    statusEl.textContent = 'Error al guardar';
+  }
+}
+
+async function loadSheet(){
+  try{
+    const res = await window.storage.get(STORAGE_KEY, false);
+    if(res && res.value){
+      const loaded = JSON.parse(res.value);
+      sheet = deepMerge(JSON.parse(JSON.stringify(DEFAULTS)), loaded);
+    }
+  }catch(err){
+    // no data yet, keep defaults
+  }
+  renderAllDynamic();
+  applyValuesToDOM();
+  statusEl.textContent = 'Cargado ✓';
+}
+
+function deepMerge(base, incoming){
+  if(Array.isArray(base)){
+    return Array.isArray(incoming) ? incoming : base;
+  }
+  if(typeof base === 'object' && base !== null){
+    const out = {...base};
+    if(incoming && typeof incoming === 'object'){
+      Object.keys(incoming).forEach(k=>{
+        out[k] = (k in base) ? deepMerge(base[k], incoming[k]) : incoming[k];
+      });
+    }
+    return out;
+  }
+  return (incoming===undefined) ? base : incoming;
+}
+
+/* ---------- toolbar actions ---------- */
+document.getElementById('btnExport').addEventListener('click', ()=>{
+  const blob = new Blob([JSON.stringify(sheet, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  const name = (sheet.datos.nombre || 'personaje').trim().replace(/\s+/g,'_');
+  a.download = `thertaris_${name}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+document.getElementById('btnImportTrigger').addEventListener('click', ()=>{
+  document.getElementById('fileImport').click();
+});
+document.getElementById('fileImport').addEventListener('change', (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try{
+      const incoming = JSON.parse(reader.result);
+      sheet = deepMerge(JSON.parse(JSON.stringify(DEFAULTS)), incoming);
+      renderAllDynamic();
+      applyValuesToDOM();
+      scheduleSave();
+    }catch(err){
+      alert('El archivo no es un JSON válido de esta hoja.');
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+});
+
+document.getElementById('btnPrint').addEventListener('click', ()=> window.print());
+
+document.getElementById('btnReset').addEventListener('click', ()=>{
+  if(!confirm('¿Reiniciar toda la hoja? Esta acción no se puede deshacer.')) return;
+  sheet = JSON.parse(JSON.stringify(DEFAULTS));
+  renderAllDynamic();
+  applyValuesToDOM();
+  scheduleSave();
+});
+
+/* ---------- init ---------- */
+loadSheet();
+
+})();
+</script>
+</body>
+</html>
