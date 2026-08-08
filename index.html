@@ -385,7 +385,7 @@
 
   </div>
 
-  <footer class="credits">Hoja interactiva no oficial basada en la ficha de personaje de Thertaris (Primera edición). Los datos se guardan automáticamente en este navegador.</footer>
+  <footer class="credits">Hoja interactiva no oficial basada en la ficha de personaje de Thertaris (Primera edición). Los datos se guardan automáticamente en este dispositivo y navegador. Usá "Exportar JSON" para tener una copia de respaldo.</footer>
 </div>
 
 <script>
@@ -736,27 +736,27 @@ function scheduleSave(){
 
 async function doSave(){
   try{
-    await window.storage.set(STORAGE_KEY, JSON.stringify(sheet), false);
-    statusEl.textContent = 'Guardado ✓';
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(sheet));
+    statusEl.textContent = 'Guardado en este dispositivo ✓';
   }catch(err){
     console.error('Error guardando', err);
-    statusEl.textContent = 'Error al guardar';
+    statusEl.textContent = 'Error al guardar (¿modo privado del navegador?)';
   }
 }
 
 async function loadSheet(){
   try{
-    const res = await window.storage.get(STORAGE_KEY, false);
-    if(res && res.value){
-      const loaded = JSON.parse(res.value);
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw){
+      const loaded = JSON.parse(raw);
       sheet = deepMerge(JSON.parse(JSON.stringify(DEFAULTS)), loaded);
     }
   }catch(err){
-    // no data yet, keep defaults
+    // no hay datos guardados todavía, se mantienen los valores por defecto
   }
   renderAllDynamic();
   applyValuesToDOM();
-  statusEl.textContent = 'Cargado ✓';
+  statusEl.textContent = sheet.datos.nombre ? 'Personaje cargado ✓' : 'Hoja en blanco — se guardará sola al escribir';
 }
 
 function deepMerge(base, incoming){
