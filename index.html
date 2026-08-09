@@ -719,7 +719,7 @@ function recomputeAll(){
       if(!h) return;
       const caracAbbrev = h.carac || item.carac || '';
       h.total = (Number(h.n)||0) + caracTotalFor(caracAbbrev) + (Number(h.objeto)||0) + (Number(h.especial)||0)
-              + (Number(h.profesion)||0)*3 + (Number(h.experto)||0)*0;
+              + (Number(h.profesion)||0)*2 + (Number(h.experto)||0)*0;
     });
   });
 
@@ -727,7 +727,7 @@ function recomputeAll(){
   HECHICERIA_SKILLS.forEach(item=>{
     const h = sheet.hechiceriaHab[item.key];
     if(!h) return;
-    h.total = (Number(h.conocimiento)||0) + caracTotalFor(h.carac||item.carac) + (Number(h.experto)||0)*10;
+    h.total = (Number(h.conocimiento)||0)*3 + caracTotalFor(h.carac||item.carac) + (Number(h.experto)||0)*0;
   });
 
   paintComputedFields();
