@@ -605,7 +605,7 @@ function renderHabilidades(){
         <td class="name-cell">${nameCell}</td>
         <td>${pipsHTML('habilidades.'+item.key+'.n', 5)}</td>
         <td class="carac-cell">${item.carac||''}</td>
-        <td>${pipsHTML('habilidades.'+item.key+'.profesion', 5)}</td>
+        <td>${pipsHTML('habilidades.'+item.key+'.profesion', 4)}</td>
         <td>${pipsHTML('habilidades.'+item.key+'.experto', 3, 'tri')}</td>
         <td><input type="number" data-bind="habilidades.${item.key}.objeto"></td>
         <td><input type="number" data-bind="habilidades.${item.key}.especial"></td>
@@ -719,7 +719,7 @@ function recomputeAll(){
       if(!h) return;
       const caracAbbrev = h.carac || item.carac || '';
       h.total = (Number(h.n)||0) + caracTotalFor(caracAbbrev) + (Number(h.objeto)||0) + (Number(h.especial)||0)
-              + (Number(h.profesion)||0)*5 + (Number(h.experto)||0)*10;
+              + (Number(h.profesion)||0)*3 + (Number(h.experto)||0)*0;
     });
   });
 
