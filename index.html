@@ -105,6 +105,7 @@
   }
   input:focus, textarea:focus{outline:2px solid var(--burgundy); outline-offset:1px; background:#fffdf5;}
   input[type=number]{width:70px;}
+  input.computed, input[readonly]{background:var(--gold-light) !important; font-weight:600; cursor:default;}
 
   .grid2{display:grid; grid-template-columns:1fr 1fr; gap:10px 20px;}
   .grid3{display:grid; grid-template-columns:repeat(3,1fr); gap:10px 16px;}
@@ -237,7 +238,7 @@
       <section class="block">
         <h2 class="section-title">Características</h2>
         <table class="sheet-table" id="caracTable">
-          <thead><tr><th>Atributo</th><th>N'</th><th>Raza</th><th>Total</th></tr></thead>
+          <thead><tr><th>Atributo</th><th>N'</th><th>Raza</th><th>Cond</th><th>Total</th></tr></thead>
           <tbody></tbody>
         </table>
       </section>
@@ -290,21 +291,21 @@
           <h2 class="section-title">Armadura</h2>
           <table class="sheet-table"><thead><tr><th>Clase</th><th>Calidad</th><th>Escudo</th><th>Yelmo</th><th>Total</th></tr></thead>
             <tbody><tr>
-              <td><input type="text" data-bind="armadura.clase"></td>
-              <td><input type="text" data-bind="armadura.calidad"></td>
-              <td><input type="text" data-bind="armadura.escudo"></td>
-              <td><input type="text" data-bind="armadura.yelmo"></td>
-              <td><input type="text" data-bind="armadura.total"></td>
+              <td><input type="number" data-bind="armadura.clase"></td>
+              <td><input type="number" data-bind="armadura.calidad"></td>
+              <td><input type="number" data-bind="armadura.escudo"></td>
+              <td><input type="number" data-bind="armadura.yelmo"></td>
+              <td><input type="number" data-bind="armadura.total" readonly class="computed"></td>
             </tr></tbody>
           </table>
 
           <h2 class="section-title" style="margin-top:18px;">Defensa</h2>
           <div class="defense-wheel">
-            <div class="quad q-top"><span class="lbl">Agilidad</span><input type="number" data-bind="defensa.agilidad"></div>
-            <div class="quad q-left"><span class="lbl">Armadura</span><input type="number" data-bind="defensa.armadura"></div>
+            <div class="quad q-top"><span class="lbl">Agilidad</span><input type="number" data-bind="defensa.agilidad" readonly class="computed"></div>
+            <div class="quad q-left"><span class="lbl">Armadura</span><input type="number" data-bind="defensa.armadura" readonly class="computed"></div>
             <div class="quad q-right"><span class="lbl">Especial</span><input type="number" data-bind="defensa.especial"></div>
-            <div class="quad q-bottom"><span class="lbl">Exp. C.</span><input type="number" data-bind="defensa.expc"></div>
-            <div class="center"><span>BD</span><input type="number" data-bind="defensa.bd"></div>
+            <div class="quad q-bottom"><span class="lbl">Exp. C.</span><input type="number" data-bind="defensa.expc" readonly class="computed"></div>
+            <div class="center"><span>BD</span><input type="number" data-bind="defensa.bd" readonly class="computed"></div>
           </div>
         </section>
       </div>
@@ -317,11 +318,11 @@
       <section class="block">
         <h2 class="section-title">Iniciativa</h2>
         <div style="display:flex; gap:16px; align-items:flex-end; flex-wrap:wrap;">
-          <label class="field" style="width:90px;"><span class="lbl">AGI</span><input type="number" data-bind="iniciativa.agi" class="ini-input"></label>
+          <label class="field" style="width:90px;"><span class="lbl">AGI</span><input type="number" data-bind="iniciativa.agi" readonly class="computed"></label>
           <span style="padding-bottom:8px;">+</span>
-          <label class="field" style="width:120px;"><span class="lbl">Exp. en combate</span><input type="number" data-bind="iniciativa.expcombate" class="ini-input"></label>
+          <label class="field" style="width:120px;"><span class="lbl">Exp. en combate</span><input type="number" data-bind="iniciativa.expcombate" readonly class="computed"></label>
           <span style="padding-bottom:8px;">−</span>
-          <label class="field" style="width:100px;"><span class="lbl">Armadura</span><input type="number" data-bind="iniciativa.armaduraPenal" class="ini-input"></label>
+          <label class="field" style="width:100px;"><span class="lbl">Armadura</span><input type="number" data-bind="iniciativa.armaduraPenal" readonly class="computed"></label>
           <span style="padding-bottom:8px;">=</span>
           <label class="field" style="width:90px;"><span class="lbl">Total</span><input type="number" id="iniciativaTotal" readonly style="background:var(--gold-light); font-weight:700;"></label>
         </div>
@@ -335,10 +336,12 @@
       <section class="block">
         <h2 class="section-title">Habilidades</h2>
         <label class="field" style="max-width:320px; margin-bottom:10px;"><span class="lbl">Profesión</span><input type="text" data-bind="profesion"></label>
-        <table class="sheet-table" id="habilidadesTable">
-          <thead><tr><th>Habilidad</th><th>N°</th><th>Carac.</th><th>Objeto</th><th>Especial</th><th>Total</th></tr></thead>
+        <div style="overflow-x:auto;">
+        <table class="sheet-table" id="habilidadesTable" style="min-width:640px;">
+          <thead><tr><th>Habilidad</th><th>N°</th><th>Carac.</th><th>Profesión</th><th>Experto</th><th>Objeto</th><th>Especial</th><th>Total</th></tr></thead>
           <tbody></tbody>
         </table>
+        </div>
       </section>
 
       <div class="grid2">
@@ -394,7 +397,7 @@
 /* ---------- Data model ---------- */
 const DEFAULTS = {
   datos:{nombre:'',peso:'',raza:'',estatura:'',lugar:'',pelo:'',edad:'',ojos:'',jugador:'',nivel:''},
-  carac:{fuerza:{n:'',raza:'',total:''},agilidad:{n:'',raza:'',total:''},constitucion:{n:'',raza:'',total:''},inteligencia:{n:'',raza:'',total:''},percepcion:{n:'',raza:'',total:''},carisma:{n:'',raza:'',total:''}},
+  carac:{fuerza:{n:'',raza:'',cond:'',total:0},agilidad:{n:'',raza:'',cond:'',total:0},constitucion:{n:'',raza:'',cond:'',total:0},inteligencia:{n:'',raza:'',cond:'',total:0},percepcion:{n:'',raza:'',cond:'',total:0},carisma:{n:'',raza:'',cond:'',total:0}},
   salud:{con:0,pv:'',puntosPerdidos:'',umbral:''},
   heridas:[{tipo:'',tiempo:''},{tipo:'',tiempo:''},{tipo:'',tiempo:''}],
   resist:{frio:'',calor:'',enfermedad:'',venenos:'',magia:''},
@@ -521,7 +524,8 @@ document.getElementById('datosGrid').innerHTML = [
       <td>${label}</td>
       <td><input type="number" data-bind="carac.${k}.n"></td>
       <td><input type="number" data-bind="carac.${k}.raza"></td>
-      <td><input type="number" data-bind="carac.${k}.total"></td>
+      <td><input type="number" data-bind="carac.${k}.cond"></td>
+      <td><input type="number" data-bind="carac.${k}.total" readonly class="computed"></td>
     </tr>`).join('');
 })();
 
@@ -591,9 +595,9 @@ function renderHabilidades(){
   const tbody = document.querySelector('#habilidadesTable tbody');
   let html = '';
   HAB_GROUPS.forEach(group=>{
-    html += `<tr class="group-row"><td colspan="6">${group.label}</td></tr>`;
+    html += `<tr class="group-row"><td colspan="8">${group.label}</td></tr>`;
     group.items.forEach(item=>{
-      if(!sheet.habilidades[item.key]) sheet.habilidades[item.key] = {n:0, objeto:'', especial:'', total:'', nombre: item.editableName ? '' : item.name};
+      if(!sheet.habilidades[item.key]) sheet.habilidades[item.key] = {n:0, profesion:0, experto:0, objeto:'', especial:'', total:0, nombre: item.editableName ? '' : item.name, carac:item.carac||''};
       const nameCell = item.editableName
         ? `<input type="text" placeholder="Nombre" data-bind="habilidades.${item.key}.nombre" style="width:100%;">`
         : item.name;
@@ -601,9 +605,11 @@ function renderHabilidades(){
         <td class="name-cell">${nameCell}</td>
         <td>${pipsHTML('habilidades.'+item.key+'.n', 5)}</td>
         <td class="carac-cell">${item.carac||''}</td>
-        <td><input type="text" data-bind="habilidades.${item.key}.objeto"></td>
-        <td><input type="text" data-bind="habilidades.${item.key}.especial"></td>
-        <td><input type="text" data-bind="habilidades.${item.key}.total"></td>
+        <td>${pipsHTML('habilidades.'+item.key+'.profesion', 5)}</td>
+        <td>${pipsHTML('habilidades.'+item.key+'.experto', 3, 'tri')}</td>
+        <td><input type="number" data-bind="habilidades.${item.key}.objeto"></td>
+        <td><input type="number" data-bind="habilidades.${item.key}.especial"></td>
+        <td><input type="number" data-bind="habilidades.${item.key}.total" readonly class="computed"></td>
       </tr>`;
     });
   });
@@ -626,13 +632,13 @@ function renderObjetosMagicos(){
 function renderHechiceria(){
   const tbody = document.querySelector('#hechiceriaTable tbody');
   tbody.innerHTML = HECHICERIA_SKILLS.map(item=>{
-    if(!sheet.hechiceriaHab[item.key]) sheet.hechiceriaHab[item.key] = {conocimiento:0, experto:0, total:''};
+    if(!sheet.hechiceriaHab[item.key]) sheet.hechiceriaHab[item.key] = {conocimiento:0, experto:0, total:0, carac:item.carac};
     return `<tr>
       <td class="name-cell">${item.name}</td>
       <td>${pipsHTML('hechiceriaHab.'+item.key+'.conocimiento', 5)}</td>
       <td class="carac-cell">${item.carac}</td>
       <td>${pipsHTML('hechiceriaHab.'+item.key+'.experto', 3, 'tri')}</td>
-      <td><input type="text" data-bind="hechiceriaHab.${item.key}.total"></td>
+      <td><input type="number" data-bind="hechiceriaHab.${item.key}.total" readonly class="computed"></td>
     </tr>`;
   }).join('');
 }
@@ -656,7 +662,7 @@ function applyValuesToDOM(){
       el.value = (val===undefined || val===null) ? '' : val;
     }
   });
-  updateIniciativa();
+  recomputeAll();
 }
 
 function paintPips(container, value){
@@ -666,7 +672,73 @@ function paintPips(container, value){
   });
 }
 
-function updateIniciativa(){
+/* Convierte una abreviatura de característica (AGI, FUE, CON, INT, PER, Int, Per...)
+   en el valor Total actual de esa característica. */
+function caracTotalFor(abbrev){
+  if(!abbrev) return 0;
+  const map = {agi:'agilidad', fue:'fuerza', con:'constitucion', int:'inteligencia', per:'percepcion', car:'carisma'};
+  const key = abbrev.trim().toLowerCase().slice(0,3);
+  const mapped = map[key];
+  if(!mapped) return 0;
+  return Number(getPath(sheet, 'carac.'+mapped+'.total')) || 0;
+}
+
+/* Recalcula todos los campos derivados de la hoja y los pinta en pantalla. */
+function recomputeAll(){
+  // 1) Total de cada característica = N' + Raza + Cond
+  ['fuerza','agilidad','constitucion','inteligencia','percepcion','carisma'].forEach(k=>{
+    const n = Number(getPath(sheet,'carac.'+k+'.n'))||0;
+    const raza = Number(getPath(sheet,'carac.'+k+'.raza'))||0;
+    const cond = Number(getPath(sheet,'carac.'+k+'.cond'))||0;
+    setPath(sheet, 'carac.'+k+'.total', n+raza+cond);
+  });
+
+  // 2) Total de Armadura = Clase + Calidad + Escudo + Yelmo
+  const armaduraTotal = ['clase','calidad','escudo','yelmo'].reduce((s,f)=> s+(Number(getPath(sheet,'armadura.'+f))||0), 0);
+  setPath(sheet, 'armadura.total', armaduraTotal);
+
+  const agiTotal = Number(getPath(sheet,'carac.agilidad.total'))||0;
+  const expCombate = Number(getPath(sheet,'hex.expcombate'))||0;
+
+  // 3) Defensa: Agilidad, Armadura y Exp.C. se toman automáticamente; Especial lo pone el jugador
+  setPath(sheet, 'defensa.agilidad', agiTotal);
+  setPath(sheet, 'defensa.armadura', armaduraTotal);
+  setPath(sheet, 'defensa.expc', expCombate);
+  const especialDef = Number(getPath(sheet,'defensa.especial'))||0;
+  setPath(sheet, 'defensa.bd', agiTotal + armaduraTotal + expCombate + especialDef);
+
+  // 4) Iniciativa = Agilidad + Exp. en combate - Armadura
+  setPath(sheet, 'iniciativa.agi', agiTotal);
+  setPath(sheet, 'iniciativa.expcombate', expCombate);
+  setPath(sheet, 'iniciativa.armaduraPenal', armaduraTotal);
+
+  // 5) Total de cada habilidad = N°(x1) + Profesión(x5) + Experto(x10) + característica + objeto + especial
+  HAB_GROUPS.forEach(group=>{
+    group.items.forEach(item=>{
+      const h = sheet.habilidades[item.key];
+      if(!h) return;
+      const caracAbbrev = h.carac || item.carac || '';
+      h.total = (Number(h.n)||0) + caracTotalFor(caracAbbrev) + (Number(h.objeto)||0) + (Number(h.especial)||0)
+              + (Number(h.profesion)||0)*5 + (Number(h.experto)||0)*10;
+    });
+  });
+
+  // 6) Total de cada habilidad de Hechicería = Conocimiento(x1) + Experto(x10) + característica
+  HECHICERIA_SKILLS.forEach(item=>{
+    const h = sheet.hechiceriaHab[item.key];
+    if(!h) return;
+    h.total = (Number(h.conocimiento)||0) + caracTotalFor(h.carac||item.carac) + (Number(h.experto)||0)*10;
+  });
+
+  paintComputedFields();
+}
+
+/* Vuelca en el DOM los campos calculados (de solo lectura) sin tocar el foco de los campos editables. */
+function paintComputedFields(){
+  document.querySelectorAll('input.computed[data-bind]').forEach(el=>{
+    const val = getPath(sheet, el.dataset.bind);
+    el.value = (val===undefined || val===null) ? '' : val;
+  });
   const agi = Number(getPath(sheet,'iniciativa.agi'))||0;
   const exp = Number(getPath(sheet,'iniciativa.expcombate'))||0;
   const pen = Number(getPath(sheet,'iniciativa.armaduraPenal'))||0;
@@ -677,8 +749,9 @@ function updateIniciativa(){
 document.body.addEventListener('input', (e)=>{
   const el = e.target;
   if(!el.dataset || !el.dataset.bind) return;
+  if(el.hasAttribute('readonly')) return;
   setPath(sheet, el.dataset.bind, el.value);
-  if(el.classList.contains('ini-input')) updateIniciativa();
+  recomputeAll();
   scheduleSave();
 });
 
@@ -692,6 +765,7 @@ document.body.addEventListener('click', (e)=>{
     const newVal = (current === i) ? i-1 : i;
     setPath(sheet, path, newVal);
     paintPips(container, newVal);
+    recomputeAll();
     scheduleSave();
     return;
   }
